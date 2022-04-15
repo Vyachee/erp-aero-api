@@ -3,6 +3,7 @@ import File from "@/models/File";
 
 export default class User extends Model {
     id!: number;
+    credential!: string;
     password!: string;
     files!: File[];
 

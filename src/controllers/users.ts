@@ -1,31 +1,33 @@
 import {Request, Response} from "express";
 import User from "@/models/User";
-import * as crypto from "crypto";
-import Token from "@/models/Token";
-const secret = "huyzhopagovno"
+import {tools} from "@/utils/tools";
+import {addSeconds} from "date-fns";
+require('dotenv').config();
 
 
 export const register = async (req: Request, res: Response) => {
     try {
-        const {username, email, firstname, lastname, birthday, about, password} = req.body;
+        const {id, password} = req.body;
 
-        const check = await User.query().findOne({email})
-        if(check) throw new Error("Email already exists")
+        if(!id || !password) throw new Error("Invalid credentials")
 
-        const hashed = crypto.createHmac('sha256', secret)
-            .update(password)
-            .digest('hex');
+        const check = await User.query().findOne({credential: id})
+        if(check) throw new Error("Credential already exists")
+
+        const hashed = tools.hashPassword(password)
 
         const user = await User.query().insertAndFetch({
-            username, email, firstname, lastname, birthday, about,
+            credential: id,
             password: hashed
         })
 
-        const token = await createToken(user)
+        const token = await tools.createToken(user)
 
         await res.json({
             success: true,
-            token: token?.token
+            access_token: token?.access_token,
+            refresh_token: token?.refresh_token,
+            valid_until: addSeconds(token?.granted_date, Number(process.env.ACCESS_TOKEN_LIFETIME)),
         })
 
     }   catch (e: any) {
@@ -38,22 +40,18 @@ export const register = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
     try {
-        const {email, password} = req.body;
-        const user = await User.query().findOne({email})
+        const {id, password} = req.body;
+        const user = await User.query().findOne({credential: id})
         if(!user) throw new Error("User not found");
 
+        const hashed = tools.hashPassword(password)
+        if(user.password !== hashed) throw new Error("Invalid credentials");
 
-        const hashed = crypto.createHmac('sha256', secret)
-            .update(password)
-            .digest('hex');
-
-        if(user.password !== hashed) throw new Error("Invalid email or password");
-
-        const token = await createToken(user)
-
+        const token = await tools.createToken(user)
         await res.json({
             success: true,
-            token: token?.token || false
+            access_token: token?.access_token,
+            refresh_token: token?.refresh_token,
         })
 
     }   catch (e: any) {
@@ -64,33 +62,3 @@ export const login = async (req: Request, res: Response) => {
     }
 }
 
-const createToken = async (user: User) => {
-    return Token.query().insertAndFetch({
-        user_id: user.id,
-        token: crypto.randomBytes(32).toString('hex')
-    });
-}
-
-interface ValidationObject {
-    [key: string]: any
-}
-
-export const validateUserField = async (req: Request, res: Response) => {
-    try {
-        const {field, value} = req.body
-        let condition: ValidationObject = {}
-        condition[field] = value
-
-        const check = await User.query().where(condition)
-
-        await res.json({
-            success: true,
-            hasValue: check.length > 0
-        })
-    }   catch (e: any) {
-        await res.json({
-            success: false,
-            message: e?.message || e
-        })
-    }
-}

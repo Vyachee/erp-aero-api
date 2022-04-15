@@ -6,9 +6,14 @@ export default async (req: RequestWithUser, res: Response, next: NextFunction) =
     try {
         const token = req.headers["authorization"]
         if(!token) throw new Error('No token')
-        const access_token = token?.split(/\s/)[1]
+        let access_token
+        if (token.startsWith("Bearer ")){
+            access_token = token.substring(7, token.length);
+        } else {
+            throw new Error('Invalid token')
+        }
         const user_token = await Token.query()
-            .findOne({token: access_token})
+            .findOne({access_token})
             .withGraphFetched('[user]')
 
         if(!user_token) throw new Error('Bad token')

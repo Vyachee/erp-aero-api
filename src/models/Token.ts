@@ -8,6 +8,7 @@ export default class Token extends Model {
     access_token!: string;
     refresh_token!: string;
     granted_date!: Date;
+    user!: User;
 
     static get tableName() {
         return "tokens";
