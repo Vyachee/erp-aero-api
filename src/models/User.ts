@@ -2,7 +2,7 @@ import {Model} from "objection";
 import File from "@/models/File";
 
 export default class User extends Model {
-    id!: string;
+    id!: number;
     password!: string;
     files!: File[];
 

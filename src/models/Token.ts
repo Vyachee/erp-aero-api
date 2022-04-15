@@ -4,7 +4,7 @@ import User from "@/models/User";
 
 export default class Token extends Model {
     id!: number;
-    user_id!: string;
+    user_id!: number;
     access_token!: string;
     refresh_token!: string;
     granted_date!: Date;

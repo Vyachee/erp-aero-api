@@ -21,5 +21,6 @@ app.listen(port, async (err?: Error) => {
         process.exit(-1);
     }   else {
         console.log('Success started')
+        console.log(`http://localhost:${port}`)
     }
 });
