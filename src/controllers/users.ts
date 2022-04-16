@@ -11,13 +11,13 @@ export const register = async (req: Request, res: Response) => {
 
         if(!id || !password) throw new Error("Invalid credentials")
 
-        const check = await User.query().findOne({credential: id})
+        const check = await User.query().findById(id)
         if(check) throw new Error("Credential already exists")
 
         const hashed = tools.hashPassword(password)
 
         const user = await User.query().insertAndFetch({
-            credential: id,
+            id,
             password: hashed
         })
 
@@ -31,6 +31,7 @@ export const register = async (req: Request, res: Response) => {
         })
 
     }   catch (e: any) {
+        console.log(e)
         await res.json({
             success: false,
             message: e?.message || e
@@ -41,7 +42,7 @@ export const register = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
     try {
         const {id, password} = req.body;
-        const user = await User.query().findOne({credential: id})
+        const user = await User.query().findById(id)
         if(!user) throw new Error("User not found");
 
         const hashed = tools.hashPassword(password)

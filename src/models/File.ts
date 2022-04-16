@@ -4,7 +4,7 @@ import User from "@/models/User";
 
 export default class File extends Model {
     id!: number;
-    user_id!: number;
+    user_id!: string;
     title!: string;
     extension!: string;
     mime!: string;
