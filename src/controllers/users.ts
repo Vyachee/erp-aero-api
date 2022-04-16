@@ -2,6 +2,8 @@ import {Request, Response} from "express";
 import User from "@/models/User";
 import {tools} from "@/utils/tools";
 import {addSeconds} from "date-fns";
+import { RequestWithUser } from "@/types";
+import Token from "@/models/Token";
 require('dotenv').config();
 
 
@@ -53,6 +55,30 @@ export const login = async (req: Request, res: Response) => {
             success: true,
             access_token: token?.access_token,
             refresh_token: token?.refresh_token,
+        })
+
+    }   catch (e: any) {
+        await res.json({
+            success: false,
+            message: e?.message || e,
+        }).status(500)
+    }
+}
+
+
+export const logout = async (req: RequestWithUser, res: Response) => {
+    try {
+        const token = `${req.headers.authorization}`
+        if (!token.startsWith("Bearer ")) throw new Error('Invalid token')
+
+        const access_token = token.substring(7, token.length);
+        const _token = await Token.query().findOne({access_token})
+        if(!_token) throw new Error('Token not found')
+
+        await Token.query().deleteById(_token?.id)
+        await res.json({
+            success: true,
+            message: 'Success logout'
         })
 
     }   catch (e: any) {

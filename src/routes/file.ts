@@ -5,12 +5,6 @@ import multer from "multer";
 
 const router = express.Router();
 
-const placeholder = async (req: Request, res: Response) => {
-    await res.json({
-        response: 'Hello world!'
-    })
-}
-
 const storage = getStorage('static/uploads')
 const upload = multer({ storage })
 
