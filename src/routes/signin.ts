@@ -1,5 +1,7 @@
 import express, {Request, Response} from 'express'
 import {login} from "@/controllers/users";
+import auth from "@/middleware/auth";
+import { new_token } from "@/controllers/tokens";
 const router = express.Router();
 
 const placeholder = async (req: Request, res: Response) => {
@@ -9,6 +11,6 @@ const placeholder = async (req: Request, res: Response) => {
 }
 
 router.post('/', login)
-router.post('/new_token', placeholder)
+router.post('/new_token', new_token)
 
 export default router
