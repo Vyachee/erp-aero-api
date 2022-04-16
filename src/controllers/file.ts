@@ -2,6 +2,7 @@ import { Response } from "express";
 import { RequestWithUser } from "@/types";
 import File from "@/models/File";
 import path from 'path';
+import * as fs from "fs";
 
 require('dotenv').config();
 
@@ -47,6 +48,37 @@ export const getList = async (req: RequestWithUser, res: Response) => {
         await res.json({
             success: true,
             data: files
+        })
+
+
+    }   catch (e: any) {
+        await res.json({
+            success: false,
+            message: e?.message || e,
+        }).status(500)
+    }
+}
+
+
+export const deleteFile = async (req: RequestWithUser, res: Response) => {
+    try {
+        if(!req.user) throw new Error("Not authorized")
+        const {id} = req.params
+
+        const file = await File.query().findById(id)
+        if(!file) throw new Error("File not found")
+        if(file.user_id === req.user.id) {
+            fs.unlink(`static/uploads/${file?.title}.${file?.extension}`, err => {
+                if(err) {
+                    throw new Error(`Error: ${err}`)
+                }
+            })
+            await File.query().deleteById(id)
+        }   else throw new Error("Don't have permissions")
+
+        await res.json({
+            success: true,
+            message: 'Successfully deleted file'
         })
 
 
