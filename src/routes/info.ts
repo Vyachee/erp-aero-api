@@ -1,13 +1,8 @@
 import express, {Request, Response} from 'express'
 import {login, register} from "@/controllers/users";
+import { getInfo } from "@/controllers/info";
 const router = express.Router();
 
-const placeholder = async (req: Request, res: Response) => {
-    await res.json({
-        response: 'Hello world!'
-    })
-}
-
-router.post('/', placeholder)
+router.get('/', getInfo)
 
 export default router
