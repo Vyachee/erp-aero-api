@@ -9,6 +9,7 @@ require('dotenv').config();
 export const new_token = async (req: Request, res: Response) => {
     try {
         const {refresh_token} = req.body;
+        console.log(refresh_token)
 
         const token = await Token.query().findOne({refresh_token})
         if(!token) throw new Error('Invalid token')
@@ -33,7 +34,6 @@ export const new_token = async (req: Request, res: Response) => {
         })
 
     }   catch (e: any) {
-        console.log(e)
         await res.json({
             success: false,
             message: e?.message || e,

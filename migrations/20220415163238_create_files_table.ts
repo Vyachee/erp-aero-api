@@ -3,6 +3,7 @@ import { Knex } from "knex";
 
 export async function up(knex: Knex): Promise<void> {
     return knex.schema.createTable('files', table => {
+        table.increments();
         table.string('user_id');
         table.foreign('user_id').references('users.id');
         table.string('title');

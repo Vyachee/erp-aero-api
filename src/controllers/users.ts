@@ -31,7 +31,7 @@ export const register = async (req: Request, res: Response) => {
         })
 
     }   catch (e: any) {
-        console.log(e)
+
         await res.json({
             success: false,
             message: e?.message || e

@@ -1,5 +1,8 @@
-import express, {Request, Response} from 'express'
-import {login, register} from "@/controllers/users";
+import express, { Request, Response } from 'express'
+import { uploadFile } from "@/controllers/file";
+import { getStorage } from "@/utils/StorageHelper";
+import multer from "multer";
+
 const router = express.Router();
 
 const placeholder = async (req: Request, res: Response) => {
@@ -8,7 +11,10 @@ const placeholder = async (req: Request, res: Response) => {
     })
 }
 
-router.post('/upload', placeholder)
+const storage = getStorage('static/uploads')
+const upload = multer({ storage })
+
+router.post('/upload', upload.single('file'), uploadFile)
 router.get('/list', placeholder)
 router.delete('/delete/:id', placeholder)
 router.get('/file/:id', placeholder)

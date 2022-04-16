@@ -34,6 +34,7 @@ export default async (req: RequestWithUser, res: Response, next: NextFunction) =
         if(user_token?.user) req.user = user_token.user
         await next()
     }   catch (e: any) {
+
         res.status(401).json({
             success: false,
             status: "Unauthorized",

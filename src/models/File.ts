@@ -8,7 +8,7 @@ export default class File extends Model {
     title!: string;
     extension!: string;
     mime!: string;
-    size!: string;
+    size!: bigint;
     upload_date!: Date;
 
     static get tableName() {

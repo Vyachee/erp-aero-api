@@ -14,7 +14,7 @@ app.use(express.text({ type: 'text/*' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use('/', multer().none(), routes)
+app.use('/', routes)
 
 app.listen(port, async (err?: Error) => {
     if (err) {
