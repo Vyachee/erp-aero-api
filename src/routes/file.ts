@@ -9,10 +9,10 @@ const storage = getStorage('static/uploads')
 const upload = multer({ storage })
 
 router.post('/upload', upload.single('file'), uploadFile)
-router.get('/list', getList)
-router.delete('/delete/:id', deleteFile)
-router.get('/download/:id', download)
+router.get('/list', multer().none(), getList)
+router.delete('/delete/:id', multer().none(), deleteFile)
+router.get('/download/:id', multer().none(), download)
 router.put('/update/:id', upload.single('file'), update)
-router.get('/:id', getInfo)
+router.get('/:id', multer().none(), getInfo)
 
 export default router
