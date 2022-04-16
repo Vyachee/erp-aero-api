@@ -12,19 +12,14 @@ export const uploadFile = async (req: RequestWithUser & { fileValidationError?: 
         if(!req.file) throw new Error("File not provided")
         if(req.fileValidationError) throw new Error(req.fileValidationError)
 
-        const {title} = req.body
-        if(!title) throw new Error("Title not provided")
-
-        console.log(1)
         const uploadedFile = await File.query().insertAndFetch({
             user_id: req.user.id,
-            title: req.body.title,
-            extension: path.extname(req.file?.originalname || ""),
+            title: req.file.filename.replace(path.extname(req.file?.originalname || ""), ''),
+            extension: path.extname(req.file?.originalname || "").replace('.', ''),
             mime: req.file?.mimetype,
             size: BigInt(req.file?.size || 0),
             upload_date: new Date()
         })
-        console.log(2)
 
         await res.json({
             success: true,
@@ -32,7 +27,6 @@ export const uploadFile = async (req: RequestWithUser & { fileValidationError?: 
         })
 
     }   catch (e: any) {
-        console.log(e)
         await res.json({
             success: false,
             message: e?.message || e,
@@ -40,3 +34,26 @@ export const uploadFile = async (req: RequestWithUser & { fileValidationError?: 
     }
 }
 
+export const getList = async (req: RequestWithUser, res: Response) => {
+    try {
+        if(!req.user) throw new Error("Not authorized")
+        const {list_size = 10, page = 1} = req.query
+
+        console.log(list_size, page)
+        const files = await File.query()
+            .where({user_id: req?.user?.id})
+            .limit(Number(list_size))
+            .offset((Number(page) - 1) * Number(list_size))
+        await res.json({
+            success: true,
+            data: files
+        })
+
+
+    }   catch (e: any) {
+        await res.json({
+            success: false,
+            message: e?.message || e,
+        }).status(500)
+    }
+}

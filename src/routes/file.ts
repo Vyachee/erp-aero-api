@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express'
-import { uploadFile } from "@/controllers/file";
+import { getList, uploadFile } from "@/controllers/file";
 import { getStorage } from "@/utils/StorageHelper";
 import multer from "multer";
 
@@ -15,7 +15,7 @@ const storage = getStorage('static/uploads')
 const upload = multer({ storage })
 
 router.post('/upload', upload.single('file'), uploadFile)
-router.get('/list', placeholder)
+router.get('/list', getList)
 router.delete('/delete/:id', placeholder)
 router.get('/file/:id', placeholder)
 router.get('/download/:id', placeholder)

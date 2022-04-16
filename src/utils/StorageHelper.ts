@@ -1,6 +1,7 @@
 
 import multer from "multer";
 import {mkdirSync} from "fs";
+import * as p from 'path';
 
 export const getStorage = (path: string) => {
     return multer.diskStorage({
@@ -9,7 +10,7 @@ export const getStorage = (path: string) => {
             cb(null, path);
         },
         filename: function (req, file, cb) {
-            cb(null, Date.now() + "-" + file.originalname);
+            cb(null, Math.floor(Date.now() * Math.random()) + p.extname(file.originalname));
         },
     })
 }
