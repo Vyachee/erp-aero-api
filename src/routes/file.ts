@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express'
-import { deleteFile, download, getInfo, getList, uploadFile } from "@/controllers/file";
+import { deleteFile, download, getInfo, getList, update, uploadFile } from "@/controllers/file";
 import { getStorage } from "@/utils/StorageHelper";
 import multer from "multer";
 
@@ -18,7 +18,7 @@ router.post('/upload', upload.single('file'), uploadFile)
 router.get('/list', getList)
 router.delete('/delete/:id', deleteFile)
 router.get('/download/:id', download)
-router.put('/update/:id', placeholder)
+router.put('/update/:id', upload.single('file'), update)
 router.get('/:id', getInfo)
 
 export default router

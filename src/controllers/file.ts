@@ -143,3 +143,42 @@ export const download = async (req: RequestWithUser, res: Response) => {
     }
 }
 
+export const update = async (req: RequestWithUser & { fileValidationError?: string }, res: Response) => {
+    try {
+        if(!req.user) throw new Error("Not authorized")
+        if(!req.file) throw new Error("File not provided")
+        if(req.fileValidationError) throw new Error(req.fileValidationError)
+
+        const {id} = req.params
+
+        const file = await File.query().findById(id)
+        if(!file) throw new Error("File not found")
+        if(file.user_id !== req.user.id) throw new Error("Don't have permissions")
+
+        fs.unlink(`static/uploads/${file?.title}.${file?.extension}`, err => {
+            if(err) {
+                throw new Error(`Error: ${err}`)
+            }
+        })
+
+        const uploadedFile = await File.query().updateAndFetchById(file?.id, {
+            user_id: req.user.id,
+            title: req.file.filename.replace(path.extname(req.file?.originalname || ""), ''),
+            extension: path.extname(req.file?.originalname || "").replace('.', ''),
+            mime: req.file?.mimetype,
+            size: BigInt(req.file?.size || 0),
+            upload_date: new Date()
+        })
+
+        await res.json({
+            success: true,
+            data: uploadedFile
+        })
+
+    }   catch (e: any) {
+        await res.json({
+            success: false,
+            message: e?.message || e,
+        }).status(500)
+    }
+}
