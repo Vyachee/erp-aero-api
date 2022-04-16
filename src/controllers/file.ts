@@ -89,3 +89,57 @@ export const deleteFile = async (req: RequestWithUser, res: Response) => {
         }).status(500)
     }
 }
+
+export const getInfo = async (req: RequestWithUser, res: Response) => {
+    try {
+        if(!req.user) throw new Error("Not authorized")
+        const {id} = req.params
+
+        const file = await File.query().findById(id)
+        if(!file) throw new Error("File not found")
+        if(file.user_id !== req.user.id) throw new Error("Don't have permissions")
+
+        await res.json({
+            success: true,
+            data: file
+        })
+
+
+    }   catch (e: any) {
+        await res.json({
+            success: false,
+            message: e?.message || e,
+        }).status(500)
+    }
+}
+
+
+export const download = async (req: RequestWithUser, res: Response) => {
+    try {
+        if(!req.user) throw new Error("Not authorized")
+        const {id} = req.params
+
+        const file = await File.query().findById(id)
+        if(!file) throw new Error("File not found")
+        if(file.user_id !== req.user.id) throw new Error("Don't have permissions")
+
+        const filePath = `static/uploads/${file?.title}.${file?.extension}`
+        fs.access(filePath, fs.constants.F_OK, err => {
+            if(err) throw new Error('File not found')
+        })
+
+        fs.readFile(filePath, (err, content) => {
+            if(err) throw new Error('File not found')
+            res.writeHead(200, {"Content-type": file?.mime})
+            res.end(content)
+        })
+
+
+    }   catch (e: any) {
+        await res.json({
+            success: false,
+            message: e?.message || e,
+        }).status(500)
+    }
+}
+
